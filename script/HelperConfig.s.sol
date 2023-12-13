@@ -3,8 +3,9 @@
 pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
+import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
 
-contract HelperConfig {
+contract HelperConfig is Script {
     struct NetworkConfig {
         address priceFeed;
     }
@@ -31,5 +32,15 @@ contract HelperConfig {
         return optimismConfig;
     }
 
-    function getAnvilEthConfig() public pure returns (NetworkConfig memory) {}
+    function getAnvilEthConfig() public returns (NetworkConfig memory) {
+        vm.startBroadcast();
+        MockV3Aggregator mockV3Aggregator = new MockV3Aggregator(8, 2000e8);
+        vm.stopBroadcast();
+
+        address anvilPriceFeed = address(mockV3Aggregator);
+
+        NetworkConfig memory anvilNetworkConfig = NetworkConfig({priceFeed: anvilPriceFeed});
+
+        return anvilNetworkConfig;
+    }
 }
